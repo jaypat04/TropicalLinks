@@ -10,7 +10,10 @@ nu = tropical_semiring_map(QQ, 3) # p-adic valuation
 
 tropical_link(I, nu)
 
-i = 2
+W = []
+
+d = 1
+i =  2   
 p = base_ring(R)(uniformizer(nu))
 
 Risymbols = copy(symbols(R)) # Copy the list of symbols
@@ -28,3 +31,8 @@ Jminus = phiminus(I)
 Tplus = Vector{QQFieldElem}.(vertices(first(tropical_variety(Jplus, nu)))) 
 Tminus = Vector{QQFieldElem}.(vertices(first(tropical_variety(Jminus, nu))) )
 
+Tplus = [insert!(vcat(zeros(d - 1), t), i, 1) for t in Tplus] 
+Tminus = [insert!(vcat(zeros(d - 1), t), i, -1) for t in Tminus]
+
+append!(W, Tplus)
+append!(W, Tminus)

@@ -2,12 +2,17 @@ function foo()
     println("Hello, World!")
 end
 
+# Function to make a vector primitive
+function make_prim(v)
+    return v./ gcd([numerator.(v)]...) # Divides each element of the vector by the GCD of the elements
+end
 
-
-#Assuming d = 1
 function tropical_link(I, nu)
-    R = base_ring(I)
+    d = 1 # Assuming d = 1 for now
+    R = base_ring(I) # Base ring
     n = ngens(R) # Number of variables
+
+    W = [] # Initialise the result set
 
     for i in 1:n
         p = base_ring(R)(uniformizer(nu)) # Uniformizer
@@ -18,7 +23,6 @@ function tropical_link(I, nu)
         Ri, xWithouti = polynomial_ring(QQ, Risymbols) # Define the polynomial ring without the i-th variable
 
         phiplus = hom(R, Ri, insert!(copy(xWithouti), i, Ri(p))) # Define the homomorphism for the positive map
-
         phiminus = hom(R, Ri, insert!(copy(xWithouti), i, Ri(p^(-1)))) # Define the homomorphism for the negative map
 
         Jplus = phiplus(I) # Apply the positive map
@@ -26,7 +30,14 @@ function tropical_link(I, nu)
 
         Tplus = Vector{QQFieldElem}.(vertices(first(tropical_variety(Jplus, nu)))) # Compute the tropical variety for the positive map
         Tminus = Vector{QQFieldElem}.(vertices(first(tropical_variety(Jminus, nu)))) # Compute the tropical variety for the negative map
-        
+
+        Tplus = [make_prim(insert!(vcat(zeros(d - 1), t), i, 1)) for t in Tplus] 
+        Tminus = [make_prim(insert!(vcat(zeros(d - 1), t), i, -1)) for t in Tminus]
+
+        # Add to the result set
+        append!(W, Tplus)
+        append!(W, Tminus)
     end
 
+    return unique(W) # Return the unique elements
 end
