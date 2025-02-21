@@ -8,7 +8,7 @@ I = ideal([f]) # Input
 
 nu = tropical_semiring_map(QQ, 3) # p-adic valuation
 
-tropical_link(I, nu)
+# tropical_link(I, nu)
 
 W = []
 
