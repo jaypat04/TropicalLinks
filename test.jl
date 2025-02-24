@@ -39,8 +39,18 @@ append!(W, Tminus)
 
 R2, (x1,x2,x3) = polynomial_ring(QQ, [:x1, :x2, :x3])
 
+# G1 = gens(I) # Generators of the ideal 
 
-G = [x1^2 + x2]
-H = matrix(QQ, lineality_space(homogeneity_space(G)))
-A = echelon_form(H)
-E, pivots = echelon_form_with_transformation(H)  # Get echelon form and pivot indices
+G = collect(groebner_basis(I, complete_reduction = true))
+
+Gtest = [x1^2 + x2]
+H = matrix(QQ, lineality_space(homogeneity_space(Gtest)))
+R = echelon_form(H)
+
+# E, pivots = echelon_form_with_transformation(H)  # Get echelon form and pivot indices
+
+Acomplement = [findfirst(!iszero, R[i, :]) for i in 1:nrows(R)]
+
+_,cols = size(R) # n
+all_indices = collect(1:cols)
+A = setdiff(all_indices, Acomplement)
