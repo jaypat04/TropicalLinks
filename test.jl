@@ -36,3 +36,11 @@ Tminus = [insert!(vcat(zeros(d - 1), t), i, -1) for t in Tminus]
 
 append!(W, Tplus)
 append!(W, Tminus)
+
+R2, (x1,x2,x3) = polynomial_ring(QQ, [:x1, :x2, :x3])
+
+
+G = [x1^2 + x2]
+H = matrix(QQ, lineality_space(homogeneity_space(G)))
+A = echelon_form(H)
+E, pivots = echelon_form_with_transformation(H)  # Get echelon form and pivot indices
