@@ -53,4 +53,18 @@ function find_pivot_indices(R)
     return pivot_indices
 end
 
+function degree_count_score(I::MPolyIdeal)
+    R = base_ring(I)
+    vars = symbols(R) # Extract the variables in the polynomial ring
+    var_scores = Dict(var => 0 for var in vars) # Initialize a dictionary with variables as keys and scores as 0
 
+    for f in gens(I) # Iterate over the generators of the ideal
+        for term in terms(f) # Iterate over each term in the generator
+            for (i,var) in enumerate(vars)
+                var_scores[var] += degree(term, i) # Increment the score by the degree of that term with respect to the variable
+            end
+        end
+    end
+    var_scores = sort(collect(var_scores); by = x -> x[2])
+    return var_scores # Return the dictionary with variables and their scores
+end
