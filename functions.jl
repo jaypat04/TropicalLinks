@@ -1,8 +1,3 @@
-# Function to make a vector primitive
-function make_primitive(v::Vector{QQFieldElem})
-    return v./ gcd([numerator.(v)]...) # Divides each element of the vector by the GCD of the elements
-end
-
 function tropical_link(I::MPolyIdeal , nu::TropicalSemiringMap)
     d = 1 # Assuming d = 1 for now
     R = base_ring(I) # Base ring
@@ -37,6 +32,11 @@ function tropical_link(I::MPolyIdeal , nu::TropicalSemiringMap)
     end
 
     return unique(W) # Return the unique elements
+end
+
+# Function to make a vector primitive
+function make_primitive(v::Vector{QQFieldElem})
+    return v./ gcd([numerator.(v)]...) # Divides each element of the vector by the GCD of the elements
 end
 
 
