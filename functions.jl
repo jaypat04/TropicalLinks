@@ -68,3 +68,21 @@ function degree_count_score(I::MPolyIdeal)
     var_scores = sort(collect(var_scores); by = x -> x[2])
     return var_scores # Return the dictionary with variables and their scores
 end
+
+function initial_score(I::MPolyIdeal, nu::TropicalSemiringMap,  w::Vector)
+    initial_ideal = initial(I, nu, w)
+    R = base_ring(initial_ideal)
+    vars = symbols(R) # Extract the variables in the polynomial ring
+    var_scores = Dict(var => 0 for var in vars) # Initialize a dictionary with variables as keys and scores as 0
+    println(initial_ideal)
+
+    for f in gens(initial_ideal) # Iterate over the generators of the ideal
+        for term in terms(f) # Iterate over each term in the generator
+            for (i,var) in enumerate(vars)
+                var_scores[var] += degree(term, i) # Increment the score by the degree of that term with respect to the variable
+            end
+        end
+    end 
+    var_scores = sort(collect(var_scores); by = x -> x[2])
+    return var_scores # Return the dictionary with variables and their scores
+end
