@@ -69,6 +69,16 @@ function degree_count_score(I::MPolyIdeal)
     return var_scores # Return the dictionary with variables and their scores
 end
 
+function degree_count_score(I::MPolyIdeal, var::MPolyRingElem)
+    score = 0
+    for f in gens(I) # Iterate over the generators of the ideal
+        for term in terms(f) # Iterate over each term in the generator
+            score += degree(term, var) # Increment the score by the degree of that term with respect to the variable
+        end
+    end
+    return score # Return the dictionary with variables and their scores
+end
+
 function initial_score(I::MPolyIdeal, nu::TropicalSemiringMap,  w::Vector)
     initial_ideal = initial(I, nu, w)
     R = base_ring(initial_ideal)
@@ -86,3 +96,23 @@ function initial_score(I::MPolyIdeal, nu::TropicalSemiringMap,  w::Vector)
     var_scores = sort(collect(var_scores); by = x -> x[2])
     return var_scores # Return the dictionary with variables and their scores
 end
+
+function initial_score(I::MPolyIdeal, nu::TropicalSemiringMap,  w::Vector, var::MPolyRingElem)
+    R = base_ring(I) # Base ring
+    index = findfirst(==(var), gens(R)) # Find the index of the variable in the polynomial ring
+    initial_ideal = initial(I, nu, w) # Compute the initial ideal
+    score = 0
+
+    for f in gens(initial_ideal) # Iterate over the generators of the ideal
+        for term in terms(f) # Iterate over each term in the generator
+            score += degree(term, index) # Increment the score by the degree of that term with respect to the variable
+        end
+    end 
+    return score # Return the dictionary with variables and their scores   
+end
+
+
+function greedy_selection(score::Function)
+end
+
+function 
