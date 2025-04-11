@@ -79,6 +79,8 @@ function degree_count_score(I::MPolyIdeal, var::MPolyRingElem)
     return score # Return the dictionary with variables and their scores
 end
 
+score_closure = var -> degree_count_score(I,var)
+
 function initial_score(I::MPolyIdeal, nu::TropicalSemiringMap,  w::Vector)
     initial_ideal = initial(I, nu, w)
     R = base_ring(initial_ideal)
@@ -111,7 +113,20 @@ function initial_score(I::MPolyIdeal, nu::TropicalSemiringMap,  w::Vector, var::
     return score # Return the dictionary with variables and their scores   
 end
 
+function is_A_done(lambda::Vector{MPolyRingElem})
+    if length(lambda) == 0
+        return false
+        
+    end
+    return true
+    
+end
 
-function greedy_selection(score::Function)
+score_closure = var -> degree_count_score(I,var)
+
+function greedy_selection(score::Function, vars::Vector{MPolyRingElem}) #, is_admissible::Function, is_done::Function)
+    for var in vars
+       println(score(var))
+    end
 end
  
