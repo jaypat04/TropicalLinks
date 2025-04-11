@@ -114,5 +114,4 @@ end
 
 function greedy_selection(score::Function)
 end
-
-function 
+ 
