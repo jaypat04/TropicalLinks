@@ -38,8 +38,6 @@ append!(W, Tminus)
 
 R2, (x1,x2,x3) = polynomial_ring(QQ, [:x1, :x2, :x3])
 
-# G1 = gens(I) # Generators of the ideal 
-
 G = collect(groebner_basis(I, complete_reduction = true))
 
 Gtest = [x1^2 + x2]
