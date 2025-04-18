@@ -4,7 +4,7 @@ function tropical_link(I::MPolyIdeal , nu::TropicalSemiringMap)
     keep_indices = setdiff(1:ngens(R), A) # Indices of the variables to keep
     R0symbols = [copy(symbols(R))[i] for i in keep_indices] # Define the symbols for the new polynomial ring
     R0, x0 = polynomial_ring(QQ, R0symbols) # Define the new polynomial ring
-    phi = hom(R, R0, [i in A ? one(R0) : gens(R0)[findfirst(==(i), keep_indices)] for i in 1:ngens(R)]) # Define the homomorphism
+    phi = hom(R, R0, [i in A ? one(R0) : x0[findfirst(==(i), keep_indices)] for i in 1:ngens(R)]) # Define the homomorphism for the reduction map
 
     phi(I) # Apply the homomorphism to the ideal
     
@@ -13,6 +13,7 @@ function tropical_link(I::MPolyIdeal , nu::TropicalSemiringMap)
 
     W = Vector{QQFieldElem}[] # Initialise the result set
 
+    #for i in 1:ngens(R0)
     for i in d:n
         p = base_ring(R)(uniformizer(nu)) # Uniformizer
 
@@ -140,7 +141,7 @@ function is_A_done(I::MPolyIdeal, lambda::Vector{MPolyRingElem}) # Tropical link
         return false
     end    
 end
-
+    
 score_closure = var -> degree_count_score(I,var)
 
 # Greedy selection for the degree score
