@@ -54,6 +54,8 @@ A = setdiff(all_indices, Acomplement)
 
 
 R, (x,y,z) = polynomial_ring(QQ, ["x", "y", "z"])
+R, (x,y,u,v,w) = polynomial_ring(QQ, ["x", "y", "u", "v", "w"])
+
 
 f = x^2*y + x^100*y
 g = x + y^2 + x^3 + z

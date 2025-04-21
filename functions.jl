@@ -1,12 +1,13 @@
 function tropical_link(I::MPolyIdeal , nu::TropicalSemiringMap)
-    A = variable_subset(I) # Get the variable subset
+    Acomplement = variable_subset(I)[1:end-1] # The variables to map to 1
     R = base_ring(I) # Base ring
-    keep_indices = setdiff(1:ngens(R), A) # Indices of the variables to keep
-    R0symbols = [copy(symbols(R))[i] for i in keep_indices] # Define the symbols for the new polynomial ring
+    keep_indices = setdiff(1:ngens(R), Acomplement) # The variables to keep
+    R0symbols = [copy(symbols(R))[i] for i in keep_indices]
     R0, x0 = polynomial_ring(QQ, R0symbols) # Define the new polynomial ring
-    phi = hom(R, R0, [i in A ? one(R0) : x0[findfirst(==(i), keep_indices)] for i in 1:ngens(R)]) # Define the homomorphism for the reduction map
+    phi = hom(R, R0, [i in Acomplement ? one(R0) : x0[findfirst(==(i), keep_indices)] for i in 1:ngens(R)]) # Define the homomorphism
+    J = phi(I) # Apply the homomorphism to the ideal
 
-    phi(I) # Apply the homomorphism to the ideal
+
     
     R = base_ring(I) # Base ring
     n = ngens(R) # Number of variables
@@ -31,13 +32,13 @@ function tropical_link(I::MPolyIdeal , nu::TropicalSemiringMap)
         Tplus = Vector{QQFieldElem}.(vertices(first(tropical_variety(Jplus, nu)))) # Compute the tropical variety for the positive map
         Tminus = Vector{QQFieldElem}.(vertices(first(tropical_variety(Jminus, nu)))) # Compute the tropical variety for the negative map
 
-        Tplus = [make_primitive(insert!(vcat(zeros(QQ, d - 1), t), i, 1)) for t in Tplus] 
-        Tminus = [make_primitive(insert!(vcat(zeros(QQ, d - 1), t), i, -1)) for t in Tminus]
+        Wplus = [make_primitive(insert!(vcat(zeros(QQ, d - 1), t), i, 1)) for t in Tplus] 
+        Wminus = [make_primitive(insert!(vcat(zeros(QQ, d - 1), t), i, -1)) for t in Tminus]
 
         
         # Add to the result set
-        append!(W, Tplus)
-        append!(W, Tminus)
+        append!(W, Wplus)
+        append!(W, Wminus)
     end
 
     return unique(W) # Return the unique elements
@@ -47,13 +48,14 @@ function variable_subset(I::MPolyIdeal)
     G = collect(groebner_basis(I, complete_reduction = true))
     H = matrix(QQ, lineality_space(homogeneity_space(G)))
     R = echelon_form(H)
-    Acomplement = [findfirst(!iszero, R[i, :]) for i in 1:nrows(R)]
+    A = [findfirst(!iszero, R[i, :]) for i in 1:nrows(R)]
 
     _,cols = size(R) # n
     all_indices = collect(1:cols)
-    A = setdiff(all_indices, Acomplement)   
-    return A
+    Acomplement = setdiff(all_indices, Acomplement)   
+    return Acomplement
 end
+
 
 # Function to make a vector primitive
 function make_primitive(v::Vector{QQFieldElem})
@@ -142,7 +144,6 @@ function is_A_done(I::MPolyIdeal, lambda::Vector{MPolyRingElem}) # Tropical link
     end    
 end
     
-score_closure = var -> degree_count_score(I,var)
 
 # Greedy selection for the degree score
 function test_greedy_selection(I::MPolyIdeal, score::Function, vars::Vector{QQMPolyRingElem}) #, is_admissible::Function, is_done::Function)
@@ -160,12 +161,6 @@ function test_greedy_selection(I::MPolyIdeal, score::Function, vars::Vector{QQMP
     return best_var # Return the variable with the minimum score
 end
 
-# Greedy selection for the initial score
-function test_greedy_selection(I::MPolyIdeal, score::Function, nu::TropicalSemiringMap, w::Vector, vars::Vector{QQMPolyRingElem}) #, is_admissible::Function, is_done::Function)
-    for var in vars
-        println(score(I, nu, w, var))
-     end
-end
 
 function greedy_selection(I::MPolyIdeal, score::Function, vars::Vector{QQMPolyRingElem}, is_admissible::Function, is_done::Function)
     lambda = Vector{QQMPolyRingElem}() # Initialize the lambda vector
