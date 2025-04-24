@@ -1,30 +1,31 @@
 function tropical_link(I::MPolyIdeal , nu::TropicalSemiringMap)
-    Acomplement = variable_subset(I)[1:end-1] # The variables to map to 1
     R = base_ring(I) # Base ring
+
+    A = greedy_selection(I, degree_count_score, is_A_admissible, is_A_done) # Get the admissible set A
+    Acomplement = setdiff(1:ngens(R), A) # The variables to map to 1
+    scores = [degree_count_score(I,i) for i in Acomplement]
+    min_score_index = argmin(scores) # Get the index of the variable with the minimum score
+    deleteat!(Acomplement, min_score_index) # Remove the variable with the minimum score from Acomplement
+
     keep_indices = setdiff(1:ngens(R), Acomplement) # The variables to keep
     R0symbols = [copy(symbols(R))[i] for i in keep_indices]
     R0, x0 = polynomial_ring(QQ, R0symbols) # Define the new polynomial ring
     phi = hom(R, R0, [i in Acomplement ? one(R0) : x0[findfirst(==(i), keep_indices)] for i in 1:ngens(R)]) # Define the homomorphism
     J = phi(I) # Apply the homomorphism to the ideal
-
-
     
-    R = base_ring(I) # Base ring
-    n = ngens(R) # Number of variables
 
     W = Vector{QQFieldElem}[] # Initialise the result set
 
-    #for i in 1:ngens(R0)
-    for i in d:n
-        p = base_ring(R)(uniformizer(nu)) # Uniformizer
+    for i in 1:ngens(R0)
+        p = base_ring(R0)(uniformizer(nu)) # Uniformizer
 
-        Risymbols = copy(symbols(R)) # Copy the list of symbols
+        Risymbols = copy(symbols(R0)) # Copy the list of symbols
         deleteat!(Risymbols, i) # Remove the i-th symbol
 
         Ri, xWithouti = polynomial_ring(QQ, Risymbols) # Define the polynomial ring without the i-th variable
 
-        phiplus = hom(R, Ri, insert!(copy(xWithouti), i, Ri(p))) # Define the homomorphism for the positive map
-        phiminus = hom(R, Ri, insert!(copy(xWithouti), i, Ri(p^(-1)))) # Define the homomorphism for the negative map
+        phiplus = hom(R0, Ri, insert!(copy(xWithouti), i, Ri(p))) # Define the homomorphism for the positive map
+        phiminus = hom(R0, Ri, insert!(copy(xWithouti), i, Ri(p^(-1)))) # Define the homomorphism for the negative map
 
         Jplus = phiplus(I) # Apply the positive map
         Jminus = phiminus(I) # Apply the negative map
@@ -75,15 +76,13 @@ function find_pivot_indices(R)
     return pivot_indices
 end
 
-function degree_count_score(I::MPolyIdeal) # Old function
-    R = base_ring(I)
-    vars = symbols(R) # Extract the variables in the polynomial ring
+function degree_count_score(I::MPolyIdeal,vars::Vector{QQMPolyRingElem}) # Old function
     var_scores = Dict(var => 0 for var in vars) # Initialize a dictionary with variables as keys and scores as 0
 
     for f in gens(I) # Iterate over the generators of the ideal
         for term in terms(f) # Iterate over each term in the generator
             for (i,var) in enumerate(vars)
-                var_scores[var] += degree(term, i) # Increment the score by the degree of that term with respect to the variable
+                var_scores[var] += degree(term, var) # Increment the score by the degree of that term with respect to the variable
             end
         end
     end

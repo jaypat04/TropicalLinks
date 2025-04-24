@@ -4,9 +4,21 @@ d = dim(I) - 1
 
 candidate_As = collect(combinations(1:n, n - d))
 
-#println(candidate_As[findfirst(A -> is_A_admissible(I, A), candidate_As)])
+println(candidate_As[findfirst(A -> is_A_admissible(I, A), candidate_As)]) # Finds the first admissible set in candidate_As
 
 println(is_A_admissible(I, [1,2,5,6,7]))
+count = 0
+
+for A in candidate_As
+    if is_A_admissible(I, A)
+        println("Admissible set: ", A)
+        global count += 1
+    else
+        println("Not admissible set: ", A)
+    end
+end
+    
+println("Total admissible sets: ", count)
 
 #12457
 function first_A(I::MPolyIdeal) # Function that just selects A one by one in order of the variables (No score algorithm)
