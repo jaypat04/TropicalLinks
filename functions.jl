@@ -52,7 +52,7 @@ function variable_subset(I::MPolyIdeal)
 
     _,cols = size(R) # n
     all_indices = collect(1:cols)
-    Acomplement = setdiff(all_indices, Acomplement)   
+    Acomplement = setdiff(all_indices, A)   
     return Acomplement
 end
 
@@ -91,11 +91,11 @@ function degree_count_score(I::MPolyIdeal) # Old function
     return var_scores # Return the dictionary with variables and their scores
 end
 
-function degree_count_score(I::MPolyIdeal, var::MPolyRingElem)
+function degree_count_score(I::MPolyIdeal, index::Int64)
     score = 0
     for f in gens(I) # Iterate over the generators of the ideal
         for term in terms(f) # Iterate over each term in the generator
-            score += degree(term, var) # Increment the score by the degree of that term with respect to the variable
+            score += degree(term, index) # Increment the score by the degree of that term with respect to the variable
         end
     end
     return  score # Return the dictionary with variables and their scores
@@ -119,9 +119,8 @@ function initial_score(I::MPolyIdeal, nu::TropicalSemiringMap,  w::Vector) # Old
     return var_scores # Return the dictionary with variables and their scores
 end
 
-function initial_score(I::MPolyIdeal, nu::TropicalSemiringMap,  w::Vector, var::MPolyRingElem)
+function initial_score(I::MPolyIdeal, nu::TropicalSemiringMap,  w::Vector, index::Int64)
     R = base_ring(I) # Base ring
-    index = findfirst(==(var), gens(R)) # Find the index of the variable in the polynomial ring
     initial_ideal = initial(I, nu, w) # Compute the initial ideal
     score = 0
 
@@ -133,15 +132,30 @@ function initial_score(I::MPolyIdeal, nu::TropicalSemiringMap,  w::Vector, var::
     return score # Return the dictionary with variables and their scores   
 end
 
-function is_A_done(I::MPolyIdeal, lambda::Vector{MPolyRingElem}) # Tropical link case
+function is_A_done(I::MPolyIdeal, A::Vector{Int64}) # Tropical link case
     R = base_ring(I) # Base ring
-    n = nvars(R) # Number of variables
+    n = ngens(R) # Number of variables
     d = dim(I) - 1 # Dimension of the ideal - 1
-    if length(lambda) == n-d    
+    if length(A) == n-d    
         return true
     else
         return false
     end    
+end
+
+function is_A_admissible(I::MPolyIdeal, A::Vector{Int64}) # Check if the variable is admissible
+    R = base_ring(I) # Base ring
+    n = ngens(R) # Number of variables
+    G = collect(groebner_basis(I, complete_reduction = true)) 
+    H = matrix(QQ, lineality_space(homogeneity_space(G))) # Compute the lineality space
+    H_cone = cone(H) # Compute the cone of the lineality space
+
+    L = matrix(QQ, [i == j ? QQ(1) : QQ(0) for j in A, i in 1:n]) # Create the matrix Lin(e_I : i in A)
+    L_cone = cone(L) # Compute the cone of the matrix
+
+    intersection = intersect(H_cone, L_cone) # Compute the intersection of the cones
+
+    return dim(intersection) == 0 # Return true if the intersection is empty
 end
     
 
@@ -162,25 +176,29 @@ function test_greedy_selection(I::MPolyIdeal, score::Function, vars::Vector{QQMP
 end
 
 
-function greedy_selection(I::MPolyIdeal, score::Function, vars::Vector{QQMPolyRingElem}, is_admissible::Function, is_done::Function)
-    lambda = Vector{QQMPolyRingElem}() # Initialize the lambda vector
-    while !is_done(lambda, I) # While the lambda vector is not done
-        min_score = Inf # Initialize the minimum score to infinity
-        best_var = nothing
+function greedy_selection(I::MPolyIdeal, score::Function, is_admissible::Function, is_done::Function)
+    R = base_ring(I) # Base ring
+    lambda = Vector{Int64}() # Initialize the lambda vector
+    available_indices = collect(1:ngens(R)) # Create a list of available indices
 
-        for var in vars # Iterate over the variables
-            current_score = score(I, var) # Get the score of the variable
+    while !is_done(I, lambda) # While the lambda vector is not done
+        min_score = Inf # Initialize the minimum score to infinity
+        best_var_index = nothing
+
+        for i in available_indices # Iterate over the variables
+            current_score = score(I, i) # Get the score of the variable
             if current_score < min_score # If the score is less than the minimum score
                 min_score = current_score # Update the minimum score
-                best_var = var # Update the best variable
+                best_var_index = i # Update the best variable
             end
         end
 
-        push!(lambda, best_var) # Add it to the lambda vector
-        if is_admissible(lambda) # If the variable is admissible
-            deleteat!(vars, findfirst(==(best_var), vars)) # Remove it from the list of variables 
+        push!(lambda, best_var_index) # Add it to the lambda vector
+        if is_admissible(I, lambda) # If the variable is admissible
+            deleteat!(available_indices, findfirst(==(best_var_index), available_indices)) # Remove it from the list of variables 
         else
             pop!(lambda) # Remove the last added variable from lambda
+            deleteat!(available_indices, findfirst(==(best_var_index), available_indices)) # Remove it from the list of variables 
         end
     end
     return lambda # Return the lambda vector
