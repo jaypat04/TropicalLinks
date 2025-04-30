@@ -1,47 +1,37 @@
 using Random
 
-function random_positive_dim_ideal(rng=Random.default_rng(); nvars=6, n_gens=3, max_deg=6)
-    # Create a polynomial ring
-    R, vars = polynomial_ring(QQ, ["x$i" for i in 1:nvars])
+function random_ideal(rng=Random.default_rng(); nvars=8, n_gens=4, max_deg=4)
+    R, _ = polynomial_ring(QQ, ["x$i" for i in 1:nvars])
 
-    while true
-        # Generate random polynomials
-        polys = []
-        for _ in 1:n_gens
-            # Random degree <= max_deg
-            deg = rand(rng, 1:max_deg)
-            push!(polys, rand_polynomial(R, deg))
-        end
-
-        # Form the ideal
-        I = ideal([polys...])
-
-        # Check dimension
-        if dim(I) > 0
-            return I
-        end
-        # Otherwise retry
+    # Generate random polynomials
+    polys = []
+    for _ in 1:n_gens
+        push!(polys, rand_polynomial(R, max_deg))
     end
+
+    # Form the ideal
+    I = ideal([polys...])
+    return(I)
 end
 
-# Helper: generate a random polynomial
-function rand_polynomial(R, deg)
-    mons = monomials(R, 0:deg)  # monomials up to degree deg
-    coeffs = [rand(-5:5) for _ in mons]  # random integer coefficients
-    return sum(c * m for (c, m) in zip(coeffs, mons) if c != 0)
+
+function rand_polynomial(R, max_deg)
+    monomials = gens(ideal(gens(R))^max_deg)
+    return sum(rand_nonzero(coefficient_ring(R)) * m for m in rand(monomials, 3))
 end
 
-function rand_polynomial(R, deg)
+function inflate_variable(I::MPolyIdeal)
+    R = base_ring(I) # Base ring
     n = ngens(R)
-    mons = []
-    for _ in 0:deg  # randomly generate 20 terms
-        exponents = rand(0:deg, n)
-        mon = prod(gens(R)[i]^exponents[i] for i in 1:n)
-        push!(mons, mon)
-    end
-    coeffs = [rand(-5:5) for _ in mons]
-    return sum(c * m for (c, m) in zip(coeffs, mons) if c != 0)
-end
+    k = ngens(I)
 
-#R, (x1,x2,x3,x4,x5,x6,x7,x8,x9,x10) = polynomial_ring(QQ, ["x1", "x2", "x3", "x4", "x5", "x6", "x7", "x8", "x9", "x10"]) # Define the polynomial ring
-#R, (x1,x2,x3,x4,x5) = polynomial_ring(QQ, ["x1", "x2", "x3", "x4", "x5"]) # Define the polynomial ring
+    random_indices = rand(collect(combinations(1:n, n-k)))
+    vars = gens(R)[random_indices]
+
+    println(vars)
+
+    phi = hom(R, R, [var in vars ? var^15 : var for var in gens(R)])
+    J = phi(I) # Apply the homomorphism to the ideal
+    
+    return J
+end

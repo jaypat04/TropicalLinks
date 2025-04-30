@@ -9,10 +9,22 @@ function rand_nonzero_qq()
     return r
 end
 
+function rand_nonzero(K)
+
+    while true
+        i = K(rand(-99:99))
+
+        if i != zero(K)
+            return i
+        end
+    end
+end
+
 function experiment(I::MPolyIdeal)
     R = base_ring(I) # Base ring
     indep_sets = Singular.independent_sets(Singular.std(Oscar.singular_generators(I)))
-    indep_sets = [R.(indep_set) for indep_set in indep_sets]    
+    indep_sets = [R.(indep_set) for indep_set in indep_sets if length(indep_set) == dim(I)] # Filter independent sets to only those of the correct dimension
+        
 
     results = []  
 
@@ -24,19 +36,19 @@ function experiment(I::MPolyIdeal)
     
     
         reducedRsymbols = [copy(symbols(R))[i] for i in keep_indices]
-        reducedR, reducedx = polynomial_ring(QQ, reducedRsymbols) # Define the polynomial ring
+        reducedR, reducedx = polynomial_ring(coefficient_ring(R), reducedRsymbols) # Define the polynomial ring
     
-        phi = hom(R, reducedR, [i in indep_set_indices ? rand_nonzero_qq() : reducedx[findfirst(==(i), keep_indices)] for i in 1:ngens(R)]) # Define the homomorphism
+        phi = hom(R, reducedR, [i in indep_set_indices ? rand_nonzero(coefficient_ring(R)) : reducedx[findfirst(==(i), keep_indices)] for i in 1:ngens(R)]) # Define the homomorphism
     
         J = phi(I) # Apply the homomorphism to the ideal
+
         dimension = dim(J)
-        println(dimension)
+        #println(dimension)
         println("The independent set: ", indep_set)
         println("Score = ", set_score)
         println("With time: ", @time triangular_decomposition(J))
 
 
-        #push!(results, J)
         #push!(results, (
         #    indep_set = indep_set,
         #    score = set_score,
@@ -46,7 +58,7 @@ function experiment(I::MPolyIdeal)
     #return results
 end
 
-function score(I::MPolyIdeal, vars::Vector{QQMPolyRingElem}) # Old function
+function score(I::MPolyIdeal, vars::Vector{<:MPolyRingElem})
     score = 0
 
     for f in gens(I) # Iterate over the generators of the ideal
