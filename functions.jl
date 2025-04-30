@@ -45,38 +45,31 @@ function tropical_link(I::MPolyIdeal , nu::TropicalSemiringMap)
     return unique(W) # Return the unique elements
 end
 
+function first_A(I::MPolyIdeal) # Function that just selects A one by one in order of the variables (No score algorithm)
+    R = base_ring(I) # Base ring
+    n = ngens(R) # Number of variables
+    d = dim(I) - 1 # Dimension of the ideal - 1
+    A = Vector{Int64}() # Initialize A as an empty vector
+
+    for i in 1:ngens(R) # Iterate over the variables
+        push!(A, i) # Add the variable to lambda
+        if !is_A_admissible(I, A) # Check if the variable is admissible
+            pop!(A) # Remove the last added variable from lambda
+        end
+
+        if length(A) == n - d # If the set A is complete
+            break # Break the loop
+        end
+    end 
+    return A # Return the set A
+end
+
 # Function to make a vector primitive
 function make_primitive(v::Vector{QQFieldElem})
     return v./ gcd([numerator.(v)]...) # Divides each element of the vector by the GCD of the elements
 end
 
-function find_pivot_indices(R)
-    pivot_indices = []
-    for j in 1:size(R, 2)  # Iterate over columns
-        for i in 1:size(R, 1)  # Iterate over rows
-            if E[i, j] == 1 && all(R[k, j] == 0 for k in 1:size(R, 1) if k != i) # Check if the column has a leading 1
-                push!(pivot_indices, j)
-                break  # Move to the next column after finding a pivot
-            end
-        end
-    end
-    return pivot_indices
-end
-
-function degree_count_score(I::MPolyIdeal,vars::Vector{QQMPolyRingElem}) # Old function
-    var_scores = Dict(var => 0 for var in vars) # Initialize a dictionary with variables as keys and scores as 0
-
-    for f in gens(I) # Iterate over the generators of the ideal
-        for term in terms(f) # Iterate over each term in the generator
-            for (i,var) in enumerate(vars)
-                var_scores[var] += degree(term, var) # Increment the score by the degree of that term with respect to the variable
-            end
-        end
-    end
-    var_scores = sort(collect(var_scores); by = x -> x[2])
-    return var_scores # Return the dictionary with variables and their scores
-end
-
+# Function to compute the degree count score
 function degree_count_score(I::MPolyIdeal, index::Int64)
     score = 0
     for f in gens(I) # Iterate over the generators of the ideal
@@ -87,24 +80,7 @@ function degree_count_score(I::MPolyIdeal, index::Int64)
     return  score # Return the dictionary with variables and their scores
 end
 
-function initial_score(I::MPolyIdeal, nu::TropicalSemiringMap,  w::Vector) # Old function
-    initial_ideal = initial(I, nu, w)
-    R = base_ring(initial_ideal)
-    vars = symbols(R) # Extract the variables in the polynomial ring
-    var_scores = Dict(var => 0 for var in vars) # Initialize a dictionary with variables as keys and scores as 0
-    println(initial_ideal)
-
-    for f in gens(initial_ideal) # Iterate over the generators of the ideal
-        for term in terms(f) # Iterate over each term in the generator
-            for (i,var) in enumerate(vars)
-                var_scores[var] += degree(term, i) # Increment the score by the degree of that term with respect to the variable
-            end
-        end
-    end 
-    var_scores = sort(collect(var_scores); by = x -> x[2])
-    return var_scores # Return the dictionary with variables and their scores
-end
-
+# Function to compute the initial ideal score
 function initial_score(I::MPolyIdeal, nu::TropicalSemiringMap,  w::Vector, index::Int64)
     initial_ideal = initial(I, nu, w) # Compute the initial ideal
     score = 0    
@@ -117,7 +93,8 @@ function initial_score(I::MPolyIdeal, nu::TropicalSemiringMap,  w::Vector, index
     return score # Return the dictionary with variables and their scores   
 end
 
-function is_A_done(I::MPolyIdeal, A::Vector{Int64}) # Tropical link case
+# Function to check if the variable subset is done
+function is_A_done(I::MPolyIdeal, A::Vector{Int64})
     R = base_ring(I) # Base ring
     n = ngens(R) # Number of variables
     d = dim(I) - 1 # Dimension of the ideal - 1
@@ -128,7 +105,8 @@ function is_A_done(I::MPolyIdeal, A::Vector{Int64}) # Tropical link case
     end    
 end
 
-function is_A_admissible(I::MPolyIdeal, A::Vector{Int64}) # Check if the variable is admissible
+# Function to check if the variable subset is admissible
+function is_A_admissible(I::MPolyIdeal, A::Vector{Int64})
     R = base_ring(I) # Base ring
     n = ngens(R) # Number of variables
     G = collect(groebner_basis(I, complete_reduction = true)) 
@@ -144,23 +122,9 @@ function is_A_admissible(I::MPolyIdeal, A::Vector{Int64}) # Check if the variabl
 end
     
 
-# Greedy selection for the degree score
-function test_greedy_selection(I::MPolyIdeal, score::Function, vars::Vector{QQMPolyRingElem}) #, is_admissible::Function, is_done::Function)
-    min_score = inf
-    best_var = nothing
-
-    for var in vars
-       println(score(I, var))
-         if score(I, var) < min_score
-              min_score = score(I, var)
-              best_var = var
-         end
-    end
-
-    return best_var # Return the variable with the minimum score
-end
-
-
+# Function to compute the greedy selection of variables
+# This function selects a subset of variables from the ideal based on a scoring function
+# and checks if the selection is admissible. It continues until a complete set is formed.
 function greedy_selection(I::MPolyIdeal, score::Function, is_admissible::Function, is_done::Function)
     R = base_ring(I) # Base ring
     lambda = Vector{Int64}() # Initialize the lambda vector

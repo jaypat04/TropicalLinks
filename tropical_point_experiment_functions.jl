@@ -1,19 +1,7 @@
-#R, (x1,x2,x3,x4,x5,x6,x7,x8,x9) = polynomial_ring(QQ, ["x1", "x2", "x3", "x4", "x5", "x6", "x7", "x8", "x9"]) # Define the polynomial ring
-#I = ideal([x1*x5 - x2*x6, x3*x4 - x1*x6, x7*x8 - x5*x9, x2*x8 - x3*x7])
-
-function rand_nonzero_qq()
-    r = rand(QQ, -10:10)
-    while r == 0
-        r = rand(QQ, -10:10)
-    end
-    return r
-end
 
 function rand_nonzero(K)
-
     while true
         i = K(rand(-99:99))
-
         if i != zero(K)
             return i
         end
@@ -26,7 +14,6 @@ function experiment(I::MPolyIdeal)
     indep_sets = [R.(indep_set) for indep_set in indep_sets if length(indep_set) == dim(I)] # Filter independent sets to only those of the correct dimension
         
 
-    results = []  
 
     for indep_set in indep_sets
         set_score = score(I,indep_set) # Compute the score for the independent set
@@ -42,20 +29,12 @@ function experiment(I::MPolyIdeal)
     
         J = phi(I) # Apply the homomorphism to the ideal
 
-        dimension = dim(J)
-        #println(dimension)
+        # Print the results
         println("The independent set: ", indep_set)
         println("Score = ", set_score)
         println("With time: ", @time triangular_decomposition(J))
 
-
-        #push!(results, (
-        #    indep_set = indep_set,
-        #    score = set_score,
-        #    time = @time triangular_decomposition(J)
-        #))
     end
-    #return results
 end
 
 function score(I::MPolyIdeal, vars::Vector{<:MPolyRingElem})
@@ -63,7 +42,7 @@ function score(I::MPolyIdeal, vars::Vector{<:MPolyRingElem})
 
     for f in gens(I) # Iterate over the generators of the ideal
         for term in terms(f) # Iterate over each term in the generator
-            for var in unique(vars) # Iterate over unique variables
+            for var in unique(vars) # Iterate over variables in the independent set               
                 score += degree(term, var) # Increment the score by the degree of that term with respect to the variable
             end
         end

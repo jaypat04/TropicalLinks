@@ -1,6 +1,6 @@
 using Random
 
-function random_ideal(rng=Random.default_rng(); nvars=8, n_gens=4, max_deg=4)
+function random_ideal(rng=Random.default_rng(); nvars=10, n_gens=5, max_deg=3)
     R, _ = polynomial_ring(QQ, ["x$i" for i in 1:nvars])
 
     # Generate random polynomials
@@ -30,8 +30,9 @@ function inflate_variable(I::MPolyIdeal)
 
     println(vars)
 
-    phi = hom(R, R, [var in vars ? var^15 : var for var in gens(R)])
+    phi = hom(R, R, [var in vars ? var^9 : var for var in gens(R)])
     J = phi(I) # Apply the homomorphism to the ideal
     
     return J
 end
+
