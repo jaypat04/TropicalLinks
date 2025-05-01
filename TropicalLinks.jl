@@ -1,7 +1,9 @@
 using Oscar
 using Combinatorics
-include("functions.jl")
+using Random
 
-# To update to the dev version of Oscar
-# ]
-# dev Oscar
+
+include("functions.jl")
+include("Tropical_link_functions.jl")
+include("Tropical_link_experiment_functions.jl")
+include("tropical_point_experiment_functions.jl")

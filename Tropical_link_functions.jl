@@ -1,6 +1,3 @@
-using Oscar
-using Combinatorics
-
 # Function to make a vector primitive
 function make_primitive(v::Vector{QQFieldElem})
     return v./ gcd([numerator.(v)]...) # Divides each element of the vector by the GCD of the elements
