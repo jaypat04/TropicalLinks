@@ -69,7 +69,7 @@ function random_ideal(rng=Random.default_rng(); nvars=12, n_gens=6, max_deg=3)
 end
 
 # This function inflates the ideal by mapping a subset of variables to a higher power
-function inflate_variable(I::MPolyIdeal)
+function inflate_ideal(I::MPolyIdeal)
     R = base_ring(I) # Base ring
     n = ngens(R) # Number of variables
     k = ngens(I) # Number of generators
