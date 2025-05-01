@@ -1,5 +1,5 @@
 # The implementation of the tropical_link function that uses the greedy selection
-function tropical_link(I::MPolyIdeal , nu::TropicalSemiringMap)
+function tropical_link_experiment(I::MPolyIdeal , nu::TropicalSemiringMap)
     R = base_ring(I) # Base ring
 
     A = greedy_selection(I, degree_count_score, is_A_admissible, is_A_done) # Get the admissible set A
