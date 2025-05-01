@@ -38,7 +38,7 @@ This file provides an experimental framework that explores a heuristic approach 
     - `is_A_done` - Checks if the key variable subset is complete.
     - `is_A_admissible` - Checks if the key variable subset is admissible for the link function.
   
-  - 'greedy_selection'
+  - `greedy_selection`
     The core function that uses the scoring and condition functions to greedily select the key variable subset. This selection is then used for computing the tropical link with the selected subset.
 
 ### `tropical_point_experiment_functions.jl`
