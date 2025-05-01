@@ -1,8 +1,8 @@
 # Tropical Links
 
 This project is a part of my dissertation on computing tropical varieties.
-It includes the implementation of the algorithm for computing tropical links, which is based on methods discussed in [HR18], in Oscar
-as well as two experiments of possible optimisations of algorithms that compute 
+It includes the implementation of the algorithm for computing tropical links, which is based on the methods discussed in [HR18], in Oscar. 
+As well as two experiments of possible optimisations of algorithms that compute 
 
 
 
