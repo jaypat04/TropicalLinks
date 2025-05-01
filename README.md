@@ -1,10 +1,9 @@
 # Tropical Links
 
 This project is a part of my dissertation on computing tropical varieties.
-It includes the implementation of the algorithm for computing tropical links, which is based on the methods discussed in [HR18], in Oscar. 
-As well as two experiments that explore possible ways of selecting key variable subsets in the tropical point and tropical link algorithm of [HR18].
+It includes the implementation of the algorithm for computing tropical links, which is based on the methods discussed in [Hofmann and Ren, 2018](https://doi.org/10.1007/s00454-018-0023-z), in Oscar. 
+As well as two experiments that explore possible ways of selecting key variable subsets in the tropical point and tropical link algorithm of [Hofmann and Ren, 2018](https://doi.org/10.1007/s00454-018-0023-z).
 
-[Hofmann and Ren, 2018](https://doi.org/10.1007/s00454-018-0023-z)
 
 
 
