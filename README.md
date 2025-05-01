@@ -11,12 +11,15 @@ It also contains **two experiments** that explore heuristic methods for selectin
 ### `tropical_link_functions.jl`
 
 This file contains the implementation of the tropical link algorithm as desccribed by [Hofmann and Ren, 2018](https://doi.org/10.1007/s00454-018-0023-z). It includes the following functions:
-  - **`make_primitive`**
-    This function takes a vector of rational numbers and converts them to a primitive form.
-    
-  - **first_A(I::MPolyIdeal)**: This function computes the key variable subset required for the tropical link algorithm.
 
-  - **tropical_link(I::MPolyIdeal , nu::TropicalSemiringMap)**: This function computes the tropical link of an ideal, using the previously computed key variable subset.
+  - **`make_primitive`**
+    Converts a vector of rational numbers into its primitive form.
+    
+  - **`first_A`**
+    Computes the key variable subset required for the tropical link algorithm.
+
+  - **`tropical_link`**
+    Computes the tropical link of an ideal, using the previously computed key variable subset.
 
 ### **2. tropical_link_experiment_functions.jl**
 
