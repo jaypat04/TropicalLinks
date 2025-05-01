@@ -4,12 +4,15 @@ This repository is part of my dissertation on computing tropical varieties. It i
 
 It also contains **two experiments** that explore heuristic methods for selecting key variable subsets in the tropical **link** and **point** algorithms proposed in the same paper.
 
-## Files Overview
+---
 
-### **1. tropical_link_functions.jl**
+## 📁 Files Overview
+
+### `tropical_link_functions.jl`
 
 This file contains the implementation of the tropical link algorithm as desccribed by [Hofmann and Ren, 2018](https://doi.org/10.1007/s00454-018-0023-z). It includes the following functions:
-  - **make_primitive(v::Vector{QQFieldElem})**: This function takes a vector of rational numbers and converts them to a primitive form.
+  - **`make_primitive`**
+    This function takes a vector of rational numbers and converts them to a primitive form.
     
   - **first_A(I::MPolyIdeal)**: This function computes the key variable subset required for the tropical link algorithm.
 
