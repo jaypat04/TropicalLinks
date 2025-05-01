@@ -6,7 +6,7 @@ As well as two experiments that explore possible ways of selecting key variable 
 
 ## Files Overview
 
-1.tropical_link_functions.jl
+### 1.tropical_link_functions.jl
 
 This file contains the implementation of the tropical link algorithm as desccribed by [Hofmann and Ren, 2018](https://doi.org/10.1007/s00454-018-0023-z). It includes the following functions:
   - make_primitive(v::Vector{QQFieldElem}): This function takes a vector of rational numbers and converts them to a primitive form.
